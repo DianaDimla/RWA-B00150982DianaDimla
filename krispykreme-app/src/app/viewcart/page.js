@@ -2,31 +2,28 @@
 import * as React from 'react';
 import { Container, Box, Button } from '@mui/material';
 import Link from 'next/link';
-import Header from '../components/Header';  // Ensure correct path if needed
-import Footer from '../components/Footer';  // Ensure correct path if needed
+import Header from '../components/Header';  
+import Footer from '../components/Footer';  
 
-// Add Bootstrap
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-// Import your CSS file
 import '../styles/Cart.css';
 import '../styles/Style.css';
 
 export default function Cart() {
-  // Example data for products in the cart (You would typically fetch this from your database or context)
+  //fetch from database
   const cartItems = [
     
   ];
 
-  // Calculate total price
+
   const calculateTotal = () => {
     return cartItems.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2);
   };
 
   const handleCheckout = () => {
-    // Handle the checkout process
+    
     console.log('Proceeding to checkout...');
-    // Redirect to a checkout page or API call to process order
   };
 
   return (
@@ -73,6 +70,7 @@ export default function Cart() {
             </div>
 
             {/* Checkout Button */}
+            <Link href="/checkout">
             <Button
               fullWidth
               variant="contained"
@@ -87,6 +85,7 @@ export default function Cart() {
             >
               Checkout
             </Button>
+            </Link>
           </Box>
         </Box>
       </Container>

@@ -5,13 +5,11 @@ import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
-import Header from '../components/Header';  // Update path if needed
-import Footer from '../components/Footer';  // Update path if needed
+import Header from '../components/Header';  
+import Footer from '../components/Footer';  
 
-// Add Bootstrap
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-// Import the CSS file
 import '../styles/Login.css';
 import '../styles/Style.css';
 
@@ -39,9 +37,8 @@ export default function Login() {
       {/* Header */}
       <Header />
 
-      {/* Main Content Container */}
-      <Container maxWidth="sm" sx={{ paddingTop: '20px', paddingBottom: '20px' }}> {/* Adjusted padding for container */}
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '70vh' }}> {/* Reduce height of Box */}
+      <Container maxWidth="sm" sx={{ paddingTop: '20px', paddingBottom: '20px' }}> 
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '70vh' }}> 
           <Box
             component="form"
             onSubmit={handleSubmit}

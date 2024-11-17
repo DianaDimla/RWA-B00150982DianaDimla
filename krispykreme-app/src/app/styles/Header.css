@@ -1,13 +1,12 @@
-/* General Header Styling */
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 10px 20px;
-  background-color: #01411c; /* Krispy Kreme Green */
-  color: #FFFFFF; /* White text for contrast */
+  background-color: #01411c; 
+  color: #FFFFFF; 
   font-family: Arial, sans-serif;
-  gap: 10px; /* Add a gap between logo and search bar */
+  gap: 10px; 
 }
 
 .header__logo {
@@ -15,14 +14,14 @@
   align-items: center;
   font-size: 24px;
   font-weight: bold;
-  color: #D52B1E; /* Krispy Kreme Red for logo text */
+  color: #D52B1E; 
 }
 
 .header__logo span {
   margin-left: 10px;
 }
 
-/* Search Bar Styling */
+
 .header__search {
   display: flex;
   align-items: center;
@@ -33,33 +32,33 @@
 .search-input {
   padding: 8px 10px;
   font-size: 14px;
-  border: 2px solid #D52B1E; /* Red border for the search bar */
+  border: 2px solid #D52B1E; 
   border-radius: 20px;
-  width: 220px; /* Increased width for a better look */
-  background-color: #FFFFFF; /* White background for search bar */
-  color: #01411c; /* Krispy Kreme Green text */
+  width: 220px; 
+  background-color: #FFFFFF; 
+  color: #01411c; 
 }
 
 .search-input:focus {
   outline: none;
-  border-color: #01411c; /* Green border on focus */
+  border-color: #01411c; 
 }
 
 .search-icon {
   position: absolute;
   right: 10px;
-  color:#9b180e;/* Red search icon */
+  color:#9b180e;
   font-size: 18px;
 }
 
-/* Navigation Links Styling */
+
 .header__nav {
   display: flex;
   gap: 20px;
 }
 
 .header__nav a {
-  color: #FFFFFF; /* White text for links */
+  color: #FFFFFF; 
   text-decoration: none;
   font-size: 16px;
   padding: 5px 10px;
@@ -68,11 +67,11 @@
 }
 
 .header__nav a:hover {
-  background-color: #9b180e; /* Red background on hover */
-  color: #FFFFFF; /* White text on hover */
+  background-color: #9b180e; 
+  color: #FFFFFF; 
 }
 
-/* Cart Icon */
+
 .cart-link {
   display: flex;
   align-items: center;
@@ -80,13 +79,13 @@
 }
 
 .cart-icon {
-  color: #FFFFFF; /* White cart icon */
+  color: #FFFFFF;
   font-size: 24px; 
 }
 
-/* Secondary Navigation */
+
 .secondary-nav {
-  background-color: #9b180e; /* Krispy Kreme Red */
+  background-color: #9b180e; 
   padding: 10px 0;
 }
 

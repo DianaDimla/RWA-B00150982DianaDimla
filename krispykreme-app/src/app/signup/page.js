@@ -4,13 +4,11 @@ import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
-import Header from '../components/Header';  // Adjust path if needed
-import Footer from '../components/Footer';  // Adjust path if needed
+import Header from '../components/Header';  
+import Footer from '../components/Footer';  
 
-// Add Bootstrap
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-// Import the CSS file
 import '../styles/Login.css';
 import '../styles/Style.css';
 
@@ -22,8 +20,6 @@ export default function SignUp() {
     let email = data.get('email');
     let pass = data.get('pass');
     let confirmPass = data.get('confirmPass');
-
-    // Password match check
     if (pass !== confirmPass) {
       console.log("Passwords do not match");
       return;

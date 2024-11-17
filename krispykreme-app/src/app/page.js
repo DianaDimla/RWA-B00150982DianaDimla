@@ -1,13 +1,12 @@
 'use client'
 import React from 'react';
 import Image from 'next/image';
-import Link from 'next/link';  // Import Link from next/link
-import './styles/Homepage.css'; // Import the CSS file
-import Header from './components/Header';  // Update path if needed
-import Footer from './components/Footer';  // Update path if needed
+import Link from 'next/link';  
+import './styles/Homepage.css';
+import Header from './components/Header';  
+import Footer from './components/Footer';  
 import logo from './images/logo.png';
 import homepage from './images/homepage.png';
-
 
 import './styles/Style.css';
 

@@ -1,9 +1,9 @@
 import React from 'react';
 import '../styles/Header.css';
 import Image from 'next/image';
-import logo from '../images/logo.png';  // Adjust the path if necessary
-import Link from 'next/link'; // Import Next.js Link component
-import { FaShoppingCart, FaSearch, } from 'react-icons/fa'; // Import cart icon
+import logo from '../images/logo.png'; 
+import Link from 'next/link';
+import { FaShoppingCart, FaSearch, } from 'react-icons/fa';
 
 export default function Header() {
   return (

@@ -1,9 +1,9 @@
 import React from 'react';
 import '../styles/Footer.css';
 import Image from 'next/image';
-import logo from '../images/logo.png'; // Adjust the path if necessary
-import Link from 'next/link'; // Import Next.js Link component
-import { FaTwitter, FaFacebookF, FaInstagram } from 'react-icons/fa'; // Import Twitter and Instagram icons
+import logo from '../images/logo.png'; 
+import Link from 'next/link';
+import { FaTwitter, FaFacebookF, FaInstagram } from 'react-icons/fa';
 
 export default function Footer() {
   return (
