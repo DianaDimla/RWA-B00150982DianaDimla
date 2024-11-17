@@ -23,7 +23,7 @@ export default function Header() {
 
         {/* Navigation Links */}
         <div className="header__nav">
-        <Link href="/cart" className="cart-link">
+        <Link href="/viewcart" className="cart-link">
             <FaShoppingCart className="cart-icon" />
           </Link>
           <Link href="/signup">Signup</Link>
