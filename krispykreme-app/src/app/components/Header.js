@@ -36,7 +36,7 @@ export default function Header() {
         <ul className="secondary-nav__list">
           <li><Link href="/">Home</Link></li>
           <li><Link href="/aboutus">About Us</Link></li>
-          <li><Link href="/products">ORDER NOW</Link></li>
+          <li><Link href="/ordernow">ORDER NOW</Link></li>
         </ul>
       </nav>
     </div>
