@@ -1,11 +1,14 @@
 'use client';
 import * as React from 'react';
+import { useState } from 'react';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
-import Header from '../components/Header';  
-import Footer from '../components/Footer';  
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -13,30 +16,52 @@ import '../styles/Login.css';
 import '../styles/Style.css';
 
 export default function SignUp() {
-  const handleSubmit = (event) => {
+  const [accountType, setAccountType] = useState('customer'); // Default account type
+
+  const handleAccountTypeChange = (event) => {
+    setAccountType(event.target.value);
+  };
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     let name = data.get('name');
     let email = data.get('email');
     let pass = data.get('pass');
     let confirmPass = data.get('confirmPass');
+
     if (pass !== confirmPass) {
-      console.log("Passwords do not match");
+      alert('Passwords do not match!');
       return;
     }
 
-    runDBCallAsync(`http://localhost:3000/api/newregister?name=${name}&email=${email}&pass=${pass}`);
-  };
+    try {
+      const response = await fetch('/api/newregister', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          pass,
+          accountType,
+        }),
+      });
 
-  async function runDBCallAsync(url) {
-    const res = await fetch(url);
-    const data = await res.json();
-    if (data.data === 'valid') {
-      console.log('Sign up is successful!');
-    } else {
-      console.log('Sign up failed');
+      const result = await response.json();
+
+      if (response.status === 200) {
+        alert('Sign-up successful! Redirecting...');
+        window.location.href = '/login';
+      } else {
+        alert(result.message || 'Sign-up failed.');
+      }
+    } catch (error) {
+      console.error('Error during sign-up:', error);
+      alert('An error occurred. Please try again.');
     }
-  }
+  };
 
   return (
     <>
@@ -125,6 +150,23 @@ export default function SignUp() {
               }}
               className="login-textfield"
             />
+
+            {/* Account Type Dropdown */}
+            <Select
+              value={accountType}
+              onChange={handleAccountTypeChange}
+              fullWidth
+              displayEmpty
+              sx={{
+                marginTop: '16px',
+                marginBottom: '16px',
+                color: '#66CCFF',
+                borderRadius: '5px',
+              }}
+            >
+              <MenuItem value="customer">Customer</MenuItem>
+              <MenuItem value="manager">Manager</MenuItem>
+            </Select>
 
             {/* Submit Button */}
             <Button

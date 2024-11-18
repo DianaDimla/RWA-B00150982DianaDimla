@@ -1,44 +1,78 @@
 'use client';
 import * as React from 'react';
-import Avatar from '@mui/material/Avatar';
+import { useState } from 'react';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
-import Header from '../components/Header';  
-import Footer from '../components/Footer';  
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
-
 import '../styles/Login.css';
 import '../styles/Style.css';
 
 export default function Login() {
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    let email = data.get('email');
-    let pass = data.get('pass');
-    runDBCallAsync(`http://localhost:3000/api/newregister?email=${email}&pass=${pass}`);
+  const [accountType, setAccountType] = useState('customer'); // Default to customer
+
+  const handleAccountTypeChange = (event) => {
+    setAccountType(event.target.value);
   };
 
-  async function runDBCallAsync(url) {
-    const res = await fetch(url);
-    const data = await res.json();
-    if (data.data === 'valid') {
-      console.log('Login is valid!');
-    } else {
-      console.log('Not valid');
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const email = data.get('email');
+    const pass = data.get('pass');
+  
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password: pass,
+          accountType,
+        }),
+      });
+  
+      const result = await response.json();
+  
+      if (response.status === 200) {
+        console.log('Login successful!', result);
+  
+        // Redirect based on account type
+        if (accountType === 'customer') {
+          window.location.href = '/customer';
+        } else if (accountType === 'manager') {
+          window.location.href = '/manager';
+        }
+      } else {
+        alert(result.message); // Show error message to the user
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      alert('An error occurred during login.');
     }
-  }
+  };
+  
 
   return (
     <>
-      {/* Header */}
       <Header />
-
-      <Container maxWidth="sm" sx={{ paddingTop: '20px', paddingBottom: '20px' }}> 
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '70vh' }}> 
+      <Container maxWidth="sm" sx={{ paddingTop: '20px', paddingBottom: '20px' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: '70vh',
+          }}
+        >
           <Box
             component="form"
             onSubmit={handleSubmit}
@@ -51,7 +85,7 @@ export default function Login() {
               boxShadow: 3,
               width: '100%',
               maxWidth: 400,
-              color: '#FFFFFF', 
+              color: '#FFFFFF',
             }}
           >
             <h2 className="text-center">Login</h2>
@@ -88,6 +122,24 @@ export default function Login() {
               className="login-textfield"
             />
 
+            {/* Account Type Dropdown */}
+            <Select
+              value={accountType}
+              onChange={handleAccountTypeChange}
+              fullWidth
+              displayEmpty
+              className="login-select"
+              sx={{
+                marginTop: '16px',
+                marginBottom: '16px',
+                color: '#66CCFF',
+                borderRadius: '5px',
+              }}
+            >
+              <MenuItem value="customer">Customer</MenuItem>
+              <MenuItem value="manager">Manager</MenuItem>
+            </Select>
+
             {/* Submit Button */}
             <Button
               type="submit"
@@ -100,8 +152,6 @@ export default function Login() {
           </Box>
         </Box>
       </Container>
-
-      {/* Footer */}
       <Footer />
     </>
   );
