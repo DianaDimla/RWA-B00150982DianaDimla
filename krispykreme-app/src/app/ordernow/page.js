@@ -1,13 +1,13 @@
 'use client';
 import * as React from 'react';
-import { Container, Grid, Card, CardMedia, CardContent, Typography, Button, Box } from '@mui/material';
+import { Container, Grid, Card, CardMedia, CardContent, Typography, Button } from '@mui/material';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/Style.css';
 
-// Importing images
+import Image from 'next/image';
 import glazed from '../images/glazed.png';
 import chocoglazed from '../images/chocoglazed.png';
 import strawsprinkle from '../images/strawsprinkle.png';
@@ -15,14 +15,14 @@ import boston from '../images/boston.png';
 import cinnamon from '../images/cinnamon.png';
 
 export default function DonutList() {
-  // Donut data
+
   const donuts = [
     {
       id: 1,
       name: 'Original Glazed',
       description: 'The classic donut with a sweet glaze.',
       price: '$1.99',
-      image: glazed,
+      image: glazed, 
     },
     {
       id: 2,
@@ -92,14 +92,23 @@ export default function DonutList() {
               >
                 {/* Donut Image */}
                 <CardMedia
-                  component="img"
+                  component="div"
                   height="200"
-                  image={donut.image}
-                  alt={donut.name}
                   sx={{
                     objectFit: 'cover',
+                    display: 'flex',
+                    justifyContent: 'center',
                   }}
-                />
+                >
+                  <Image
+                    src={donut.image}
+                    alt={donut.name}
+                    width={200}
+                    height={200}
+                    objectFit="cover"
+                    priority
+                  />
+                </CardMedia>
 
                 {/* Donut Info */}
                 <CardContent sx={{ padding: '20px' }}>

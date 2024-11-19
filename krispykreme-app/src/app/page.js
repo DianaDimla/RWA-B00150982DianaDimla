@@ -27,7 +27,7 @@ export default function Homepage() {
             <Link href="/signup">
               <button className="button">Join the Community</button>
             </Link>
-            <Link href="/listings">
+            <Link href="/ordernow">
               <button className="button">ORDER NOW</button>
             </Link>
           </div>
