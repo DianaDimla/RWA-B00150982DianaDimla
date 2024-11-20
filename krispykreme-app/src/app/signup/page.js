@@ -30,13 +30,15 @@ export default function SignUp() {
     let pass = data.get('pass');
     let confirmPass = data.get('confirmPass');
 
+    // Check if passwords match
     if (pass !== confirmPass) {
       alert('Passwords do not match!');
       return;
     }
 
+    // Send the signup request
     try {
-      const response = await fetch('/api/newregister', {
+      const response = await fetch('/api/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -51,11 +53,12 @@ export default function SignUp() {
 
       const result = await response.json();
 
+      // Handle the response after signup
       if (response.status === 200) {
         alert('Sign-up successful! Redirecting...');
-        window.location.href = '/login';
+        window.location.href = '/login'; // Redirect user to login page after signup
       } else {
-        alert(result.message || 'Sign-up failed.');
+        alert(result.message || 'Sign-up failed. Please try again.');
       }
     } catch (error) {
       console.error('Error during sign-up:', error);

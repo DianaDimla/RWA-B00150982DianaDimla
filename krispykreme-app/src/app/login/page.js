@@ -16,6 +16,7 @@ import '../styles/Style.css';
 
 export default function Login() {
   const [accountType, setAccountType] = useState('customer'); // Default to customer
+  const [error, setError] = useState(null); // To display errors
 
   const handleAccountTypeChange = (event) => {
     setAccountType(event.target.value);
@@ -26,7 +27,7 @@ export default function Login() {
     const data = new FormData(event.currentTarget);
     const email = data.get('email');
     const pass = data.get('pass');
-  
+
     try {
       const response = await fetch('/api/login', {
         method: 'POST',
@@ -39,27 +40,26 @@ export default function Login() {
           accountType,
         }),
       });
-  
+
       const result = await response.json();
-  
+
       if (response.status === 200) {
         console.log('Login successful!', result);
-  
+
         // Redirect based on account type
         if (accountType === 'customer') {
-          window.location.href = '/customer';
+          window.location.href = '/ordernow'; // Redirect to order now page for customers
         } else if (accountType === 'manager') {
-          window.location.href = '/manager';
+          window.location.href = '/manager'; // Redirect to manager dashboard
         }
       } else {
-        alert(result.message); // Show error message to the user
+        setError(result.message); // Show error message to the user
       }
     } catch (error) {
       console.error('Login error:', error);
-      alert('An error occurred during login.');
+      setError('An error occurred during login.');
     }
   };
-  
 
   return (
     <>
@@ -149,6 +149,8 @@ export default function Login() {
             >
               Login
             </Button>
+
+            {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>} {/* Display error message */}
           </Box>
         </Box>
       </Container>
