@@ -41,24 +41,28 @@ export default function Login() {
         },
         body: JSON.stringify({
           email,
-          pass,  // Sending the password value as 'pass'
-          accountType,
+          pass, // Sending the password value as 'pass'
         }),
       });
 
-      const result = await response.json();  // Parse JSON response from backend
+      const result = await response.json(); // Parse JSON response from backend
 
       // Check if the login was successful
       if (response.status === 200) {
         console.log('Login successful!', result);
 
-        // You can add the success logic here, such as updating state or showing success message
+        // Redirect based on user role
+        if (result.user.role === 'customer') {
+          window.location.href = '/ordernow'; // Redirect to order now page
+        } else if (result.user.role === 'manager') {
+          window.location.href = '/manager'; // Redirect to manager page
+        }
       } else {
-        setError(result.message);  // Show error message from backend
+        setError(result.message); // Show error message from backend
       }
     } catch (error) {
       console.error('Login error:', error);
-      setError('An error occurred during login.');  // Show generic error message
+      setError('An error occurred during login.'); // Show generic error message
     }
   };
 

@@ -1,12 +1,10 @@
 'use client';
-import * as React from 'react';
-import { Container, Grid, Card, CardMedia, CardContent, Typography, Button } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { Container, Grid, Card, CardMedia, CardContent, Typography, Button, Box } from '@mui/material';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/Style.css';
-
 import Image from 'next/image';
 import glazed from '../images/glazed.png';
 import chocoglazed from '../images/chocoglazed.png';
@@ -15,6 +13,8 @@ import boston from '../images/boston.png';
 import cinnamon from '../images/cinnamon.png';
 
 export default function DonutList() {
+  const [temperature, setTemperature] = useState(null); // State to store temperature
+  const [error, setError] = useState(null); // State to store error messages
 
   const donuts = [
     {
@@ -22,20 +22,20 @@ export default function DonutList() {
       name: 'Original Glazed',
       description: 'The classic donut with a sweet glaze.',
       price: '$1.99',
-      image: glazed, 
+      image: glazed,
     },
     {
       id: 2,
       name: 'Chocolate Iced Glazed',
       description: 'Glazed donut dipped in chocolate icing.',
-      price: '$2.49',
+      price: '$2.50',
       image: chocoglazed,
     },
     {
       id: 3,
       name: 'Strawberry Sprinkle',
       description: 'Strawberry icing with colorful sprinkles.',
-      price: '$2.99',
+      price: '$2.50',
       image: strawsprinkle,
     },
     {
@@ -54,13 +54,48 @@ export default function DonutList() {
     },
   ];
 
+  // Fetch weather data for Dublin, Ireland
+  useEffect(() => {
+    const fetchWeather = async () => {
+      try {
+        const response = await fetch(
+          `http://api.weatherapi.com/v1/current.json?key=07c18e6843e1403290f150550242110&q=Dublin&aqi=no`
+        );
+        if (!response.ok) {
+          throw new Error('Failed to fetch weather data');
+        }
+        const data = await response.json();
+        setTemperature(data.current.temp_c);
+      } catch (err) {
+        console.error('Error fetching weather data:', err);
+        setError('Unable to fetch weather data.');
+      }
+    };
+
+    fetchWeather();
+  }, []);
+
   return (
     <>
       {/* Header */}
       <Header />
 
+      {/* Weather Section */}
+      <Container maxWidth="lg" sx={{ marginTop: '20px', marginBottom: '30px' }}>
+        <Box sx={{ textAlign: 'center', padding: '20px', backgroundColor: '#f5f5f5', borderRadius: '8px' }}>
+          {error && <p style={{ color: 'red' }}>{error}</p>}
+          {temperature !== null ? (
+            <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#333' }}>
+              Current Temperature in Dublin: {temperature}°C
+            </Typography>
+          ) : (
+            !error && <p>Loading temperature...</p>
+          )}
+        </Box>
+      </Container>
+
       {/* Main Content */}
-      <Container maxWidth="lg" sx={{ marginTop: '30px', marginBottom: '50px' }}>
+      <Container maxWidth="lg" sx={{ marginBottom: '50px' }}>
         <Typography
           variant="h3"
           component="h1"

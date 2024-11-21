@@ -71,8 +71,8 @@ export default function About() {
           <p>
             Stop by one of our locations or order online to bring the joy of Krispy Kreme to you!
           </p>
-          <Link href="/ordernow">
-              <button className="button">ORDER NOW</button>
+          <Link href="/signup">
+              <button className="button">SIGNUP TO ORDER!</button>
             </Link>
         </div>
       </div>
