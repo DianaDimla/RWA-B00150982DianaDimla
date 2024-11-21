@@ -1,35 +1,29 @@
-import { getCustomSession } from '../sessionCode.js';
-import connectDB from '../../utils/db';
-import User from '../../models/User';
 import bcrypt from 'bcryptjs';
+import { connectToDatabase } from '../../../lib/mongodb'; 
+import User from '../../models/User';
 
-export async function POST(req, res) {
-  const { email, password, accountType } = await req.json();
-  await connectDB();
+export async function POST(req) {
+  const { email, password } = await req.json(); // Parse JSON body
 
   try {
-    const user = await User.findOne({ email, role: accountType });
+    const { db } = await connectToDatabase();
+
+    // Check if the user exists in the database
+    const user = await db.collection('users').findOne({ email });
     if (!user) {
-      return new Response(JSON.stringify({ message: "Invalid credentials" }), { status: 401 });
+      return new Response(JSON.stringify({ message: 'Invalid credentials' }), { status: 401 });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return new Response(JSON.stringify({ message: "Invalid credentials" }), { status: 401 });
+    // Compare the password
+    const isValid = await bcrypt.compare(password, user.password);
+    if (!isValid) {
+      return new Response(JSON.stringify({ message: 'Invalid credentials' }), { status: 401 });
     }
 
-    const session = await getCustomSession();
-    session.role = accountType; // Save role
-    session.email = email; // Save email
-    await session.save(); // Save session
-
-    console.log("Session data saved on login:", { email, role: accountType });
-
-    return new Response(JSON.stringify({ message: "Login successful", role: accountType }), { status: 200 });
-  } catch (error) {
-    console.error("Login error:", error);
-    return new Response(JSON.stringify({ message: "Server error" }), { status: 500 });
+    // Successful login
+    return new Response(JSON.stringify({ message: 'Login successful', user: { email: user.email, accountType: user.accountType } }), { status: 200 });
+  } catch (err) {
+    console.error('Error during login:', err);
+    return new Response(JSON.stringify({ message: 'Internal server error' }), { status: 500 });
   }
 }
-
-

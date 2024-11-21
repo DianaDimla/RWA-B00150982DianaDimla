@@ -11,58 +11,55 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
-
 import '../styles/Login.css';
 import '../styles/Style.css';
 
 export default function SignUp() {
-  const [accountType, setAccountType] = useState('customer'); // Default account type
+  const [accType, setAccType] = useState('customer'); // Default account type
+  const [firstName, setFirstName] = useState('');
+  const [email, setEmail] = useState('');
+  const [pass, setPass] = useState('');
+  const [error, setError] = useState(null); // Error state for handling error messages
+  const url = 'mongodb+srv://root:myPassword123@cluster0.wqz8n.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 
   const handleAccountTypeChange = (event) => {
-    setAccountType(event.target.value);
+    setAccType(event.target.value);
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    let name = data.get('name');
-    let email = data.get('email');
-    let pass = data.get('pass');
-    let confirmPass = data.get('confirmPass');
 
-    // Check if passwords match
-    if (pass !== confirmPass) {
-      alert('Passwords do not match!');
+    // Validate user input
+    if (!firstName || !email || !pass) {
+      setError('All fields are required.');
       return;
     }
 
-    // Send the signup request
     try {
-      const response = await fetch('/api/signup', {
-        method: 'POST',
+      // Use fetch API to call the backend API
+      const response = await fetch(`/api/signup`, {
+        method: 'POST', // Assuming POST method for registration
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name,
+          name: firstName, 
           email,
           pass,
-          accountType,
+          accountType: accType, 
         }),
       });
 
-      const result = await response.json();
-
-      // Handle the response after signup
-      if (response.status === 200) {
+      if (response.ok) {
         alert('Sign-up successful! Redirecting...');
         window.location.href = '/login'; // Redirect user to login page after signup
       } else {
-        alert(result.message || 'Sign-up failed. Please try again.');
+        const result = await response.json();
+        setError(result.message || 'Sign-up failed. Please try again.');
       }
     } catch (error) {
       console.error('Error during sign-up:', error);
-      alert('An error occurred. Please try again.');
+      setError('An error occurred. Please try again.');
     }
   };
 
@@ -91,15 +88,20 @@ export default function SignUp() {
           >
             <h2 className="text-center">Sign Up</h2>
 
-            {/* Name Input */}
+            {/* Error message */}
+            {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
+
+            {/* First Name Input */}
             <TextField
               margin="normal"
               required
               fullWidth
-              id="name"
-              label="Full Name"
-              name="name"
+              id="firstName"
+              label="First Name"
+              name="firstName"
               autoComplete="name"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
               autoFocus
               InputLabelProps={{
                 style: { color: '#66CCFF' },
@@ -116,6 +118,8 @@ export default function SignUp() {
               label="Email Address"
               name="email"
               autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               InputLabelProps={{
                 style: { color: '#66CCFF' },
               }}
@@ -132,22 +136,8 @@ export default function SignUp() {
               type="password"
               id="pass"
               autoComplete="new-password"
-              InputLabelProps={{
-                style: { color: '#66CCFF' },
-              }}
-              className="login-textfield"
-            />
-
-            {/* Confirm Password Input */}
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="confirmPass"
-              label="Confirm Password"
-              type="password"
-              id="confirmPass"
-              autoComplete="new-password"
+              value={pass}
+              onChange={(e) => setPass(e.target.value)}
               InputLabelProps={{
                 style: { color: '#66CCFF' },
               }}
@@ -156,7 +146,7 @@ export default function SignUp() {
 
             {/* Account Type Dropdown */}
             <Select
-              value={accountType}
+              value={accType}
               onChange={handleAccountTypeChange}
               fullWidth
               displayEmpty
@@ -172,12 +162,7 @@ export default function SignUp() {
             </Select>
 
             {/* Submit Button */}
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              className="login-button"
-            >
+            <Button type="submit" fullWidth variant="contained" className="login-button">
               Sign Up
             </Button>
           </Box>

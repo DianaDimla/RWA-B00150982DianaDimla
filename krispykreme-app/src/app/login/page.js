@@ -19,7 +19,6 @@ export default function Login() {
 
   const [accountType, setAccountType] = useState('customer'); // Default to customer
   const [error, setError] = useState(null); // To display errors
-  const router = useRouter(); // Hook for navigation
 
   const handleAccountTypeChange = (event) => {
     setAccountType(event.target.value);

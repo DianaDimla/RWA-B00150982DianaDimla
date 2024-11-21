@@ -1,42 +1,62 @@
-import { getCustomSession } from '../sessionCode.js';
-import { connectToDatabase } from '../../lib/mongodb';
-import User from '../../models/User';
 import bcrypt from 'bcryptjs';
+import { connectToDatabase } from '../../../lib/mongodb'; 
+import User from '../../models/User';
 
-export async function POST(req, res) {
-  const { name, email, pass, accountType } = await req.json();
-  await connectDB();
+export async function POST(req) {
+
+  await connectToDatabase();
 
   try {
-    // Check if the email already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return new Response(JSON.stringify({ message: "Email already in use" }), { status: 400 });
+
+    const body = await req.json();
+    console.log('Incoming request:', body);
+
+
+    const { name, email, pass, accountType } = body;
+
+    // Validate input
+    if (!name || !email || !pass || !accountType) {
+      console.error('Validation failed: Missing fields');
+      return new Response(
+        JSON.stringify({ message: 'All fields are required' }),
+        { status: 400 }
+      );
     }
 
-    // Hash the password before saving it
+    // Check if the email is already registered
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      console.error('Validation failed: Email already registered');
+      return new Response(
+        JSON.stringify({ message: 'Email already registered' }),
+        { status: 400 }
+      );
+    }
+
+    // Hash the password
     const hashedPassword = await bcrypt.hash(pass, 10);
 
-    // Save the user in the database
+    // Create and save the new user
     const newUser = new User({
       name,
       email,
       password: hashedPassword,
-      role: accountType,
+      accountType,
     });
+
     await newUser.save();
 
-    // Create a session for the user
-    const session = await getCustomSession();
-    session.role = accountType;
-    session.email = email;
-    await session.save();
+    console.log('New user registered successfully:', newUser);
 
-    console.log("User registered and session created:", { name, email, role: accountType });
-
-    return new Response(JSON.stringify({ message: "Signup successful" }), { status: 200 });
-  } catch (error) {
-    console.error("Signup error:", error);
-    return new Response(JSON.stringify({ message: "Server error" }), { status: 500 });
+    return new Response(
+      JSON.stringify({ message: 'User registered successfully!' }),
+      { status: 200 }
+    );
+  } catch (err) {
+    console.error('Error during registration:', err);
+    return new Response(
+      JSON.stringify({ message: `Server error: ${err.message}` }),
+      { status: 500 }
+    );
   }
 }
