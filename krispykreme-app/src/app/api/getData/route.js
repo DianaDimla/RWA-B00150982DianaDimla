@@ -1,15 +1,17 @@
-import { getCustomSession } from '../sessionCode.js';
+import { getCustomSession } from '../../lib/sessionCode'; // Import the session code
 
 export async function GET(req, res) {
-  const session = await getCustomSession();
+  // Get the session
+  let session = await getCustomSession();
 
-  const role = session.role; // Access the stored role
-  const email = session.email; // Access the stored email
+  // Retrieve the stored session data
+  let customersRole = session.role;
+  let email = session.email;
 
-  console.log("Session data retrieved:", { role, email });
+  // Log the data to the console
+  console.log('Customer Role:', customersRole);
+  console.log('Email:', email);
 
-  return new Response(
-    JSON.stringify({ role, email }),
-    { status: 200 }
-  );
+  // Return the session data in the response
+  return res.status(200).json({ role: customersRole, email: email });
 }

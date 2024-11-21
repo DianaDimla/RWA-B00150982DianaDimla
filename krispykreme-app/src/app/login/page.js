@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { useState } from 'react';
-import { useRouter } from 'next/router';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Select from '@mui/material/Select';
@@ -10,13 +9,13 @@ import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import Link from 'next/link';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/Login.css';
 import '../styles/Style.css';
 
 export default function Login() {
-
   const [accountType, setAccountType] = useState('customer'); // Default to customer
   const [error, setError] = useState(null); // To display errors
 
@@ -26,10 +25,15 @@ export default function Login() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const email = event.target.email.value; // Access email field directly
-    const pass = event.target.pass.value;  // Access password field directly
+
+    // Get email and password values from form inputs
+    const email = event.target.email.value;  // Ensure email is captured correctly
+    const pass = event.target.pass.value;  // Ensure password is captured correctly
+
+    console.log('Form submission:', { email, pass });  // Debug log to check values
 
     try {
+      // Make API request to login
       const response = await fetch('/api/login', {
         method: 'POST',
         headers: {
@@ -37,28 +41,24 @@ export default function Login() {
         },
         body: JSON.stringify({
           email,
-          password: pass,
+          pass,  // Sending the password value as 'pass'
           accountType,
         }),
       });
 
-      const result = await response.json();
+      const result = await response.json();  // Parse JSON response from backend
 
+      // Check if the login was successful
       if (response.status === 200) {
         console.log('Login successful!', result);
 
-        // Redirect based on account type using next/router
-        if (accountType === 'customer') {
-          router.push('/ordernow'); // Redirect to order now page for customers
-        } else if (accountType === 'manager') {
-          router.push('/manager'); // Redirect to manager dashboard
-        }
+        // You can add the success logic here, such as updating state or showing success message
       } else {
-        setError(result.message); // Show error message to the user
+        setError(result.message);  // Show error message from backend
       }
     } catch (error) {
       console.error('Login error:', error);
-      setError('An error occurred during login.');
+      setError('An error occurred during login.');  // Show generic error message
     }
   };
 
@@ -66,14 +66,7 @@ export default function Login() {
     <>
       <Header />
       <Container maxWidth="sm" sx={{ paddingTop: '20px', paddingBottom: '20px' }}>
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            minHeight: '70vh',
-          }}
-        >
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '70vh' }}>
           <Box
             component="form"
             onSubmit={handleSubmit}
@@ -153,6 +146,15 @@ export default function Login() {
 
             {/* Error Message */}
             {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
+
+            {/* Links to other pages */}
+            <div style={{ textAlign: 'center', marginTop: '10px' }}>
+              <Link href="/signup" passHref>
+                <Button variant="outlined" sx={{ marginTop: '10px', color: '#66CCFF' }}>
+                  Don't have an account? Sign Up
+                </Button>
+              </Link>
+            </div>
           </Box>
         </Box>
       </Container>
