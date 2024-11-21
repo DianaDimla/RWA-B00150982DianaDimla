@@ -1,5 +1,5 @@
 import { getCustomSession } from '../sessionCode.js';
-import connectDB from '../../utils/db';
+import { connectToDatabase } from '../../lib/mongodb';
 import User from '../../models/User';
 import bcrypt from 'bcryptjs';
 

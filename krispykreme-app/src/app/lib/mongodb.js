@@ -1,20 +1,33 @@
-import { MongoClient } from 'mongodb';
+import mongoose from 'mongoose';
 
-const uri = 'mongodb+srv://root:myPassword123@cluster0.wqz8n.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
-const options = { useNewUrlParser: true, useUnifiedTopology: true };
+const MONGODB_URI = process.env.MONGODB_URI; // Store in environment variables for security
 
-let client;
-let clientPromise;
-
-if (!global._mongoClientPromise) {
-  client = new MongoClient(uri, options);
-  global._mongoClientPromise = client.connect();
+// Check if the app is running in development or production
+if (!MONGODB_URI) {
+  throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
 }
 
-clientPromise = global._mongoClientPromise;
+let cached = global.mongoose;
 
-export default async function connectToDatabase() {
-  const client = await clientPromise;
-  const db = client.db('yourDatabaseName'); // Replace with your database name
-  return { client, db };
+if (!cached) {
+  cached = global.mongoose = { conn: null, promise: null };
 }
+
+async function connectToDatabase() {
+  if (cached.conn) {
+    return cached.conn;
+  }
+
+  if (!cached.promise) {
+    const opts = {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    };
+    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => mongoose);
+  }
+
+  cached.conn = await cached.promise;
+  return cached.conn;
+}
+
+export { connectToDatabase };

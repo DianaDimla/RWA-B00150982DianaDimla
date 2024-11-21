@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useState } from 'react';
+import { useRouter } from 'next/router';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Select from '@mui/material/Select';
@@ -15,8 +16,10 @@ import '../styles/Login.css';
 import '../styles/Style.css';
 
 export default function Login() {
+
   const [accountType, setAccountType] = useState('customer'); // Default to customer
   const [error, setError] = useState(null); // To display errors
+  const router = useRouter(); // Hook for navigation
 
   const handleAccountTypeChange = (event) => {
     setAccountType(event.target.value);
@@ -24,9 +27,8 @@ export default function Login() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    const email = data.get('email');
-    const pass = data.get('pass');
+    const email = event.target.email.value; // Access email field directly
+    const pass = event.target.pass.value;  // Access password field directly
 
     try {
       const response = await fetch('/api/login', {
@@ -46,11 +48,11 @@ export default function Login() {
       if (response.status === 200) {
         console.log('Login successful!', result);
 
-        // Redirect based on account type
+        // Redirect based on account type using next/router
         if (accountType === 'customer') {
-          window.location.href = '/ordernow'; // Redirect to order now page for customers
+          router.push('/ordernow'); // Redirect to order now page for customers
         } else if (accountType === 'manager') {
-          window.location.href = '/manager'; // Redirect to manager dashboard
+          router.push('/manager'); // Redirect to manager dashboard
         }
       } else {
         setError(result.message); // Show error message to the user
@@ -150,7 +152,8 @@ export default function Login() {
               Login
             </Button>
 
-            {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>} {/* Display error message */}
+            {/* Error Message */}
+            {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
           </Box>
         </Box>
       </Container>
