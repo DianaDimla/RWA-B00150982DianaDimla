@@ -25,16 +25,16 @@ export async function GET(req, res) {
   // MongoDB Connection
   try {
     const { MongoClient } = require('mongodb');
-    const url = process.env.DB_ADDRESS; // Ensure this is correctly set in your environment variables
+    const url = process.env.DB_ADDRESS; // MongoDB connection URL
     const client = new MongoClient(url);
-    const dbName = 'app';
+    const dbName = 'app'; // Database name
 
     // Connect to MongoDB
     await client.connect();
     console.log("Connected successfully to MongoDB Atlas");
 
     const db = client.db(dbName);
-    const collection = db.collection('users');
+    const collection = db.collection('users'); // 'users' collection
 
     // Check if the user already exists
     const existingUser = await collection.findOne({ email });
@@ -46,7 +46,7 @@ export async function GET(req, res) {
       );
     }
 
-    // Insert the user data
+    // Insert new user data
     const user = {
       firstName,
       email,

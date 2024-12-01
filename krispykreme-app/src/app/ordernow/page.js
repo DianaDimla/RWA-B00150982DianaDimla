@@ -16,42 +16,13 @@ export default function DonutList() {
   const [temperature, setTemperature] = useState(null); // State to store temperature
   const [error, setError] = useState(null); // State to store error messages
 
+  // Array of donut details
   const donuts = [
-    {
-      id: 1,
-      name: 'Original Glazed',
-      description: 'The classic donut with a sweet glaze.',
-      price: '$1.99',
-      image: glazed,
-    },
-    {
-      id: 2,
-      name: 'Chocolate Iced Glazed',
-      description: 'Glazed donut dipped in chocolate icing.',
-      price: '$2.50',
-      image: chocoglazed,
-    },
-    {
-      id: 3,
-      name: 'Strawberry Sprinkle',
-      description: 'Strawberry icing with colorful sprinkles.',
-      price: '$2.50',
-      image: strawsprinkle,
-    },
-    {
-      id: 4,
-      name: 'Boston Cream',
-      description: 'Filled with custard and chocolate icing.',
-      price: '$2.99',
-      image: boston,
-    },
-    {
-      id: 5,
-      name: 'Cinnamon Sugar',
-      description: 'Coated with cinnamon sugar.',
-      price: '$1.99',
-      image: cinnamon,
-    },
+    { id: 1, name: 'Original Glazed', description: 'The classic donut with a sweet glaze.', price: '$1.99', image: glazed },
+    { id: 2, name: 'Chocolate Iced Glazed', description: 'Glazed donut dipped in chocolate icing.', price: '$2.50', image: chocoglazed },
+    { id: 3, name: 'Strawberry Sprinkle', description: 'Strawberry icing with colorful sprinkles.', price: '$2.50', image: strawsprinkle },
+    { id: 4, name: 'Boston Cream', description: 'Filled with custard and chocolate icing.', price: '$2.99', image: boston },
+    { id: 5, name: 'Cinnamon Sugar', description: 'Coated with cinnamon sugar.', price: '$1.99', image: cinnamon },
   ];
 
   // Fetch weather data for Dublin, Ireland
@@ -65,14 +36,14 @@ export default function DonutList() {
           throw new Error('Failed to fetch weather data');
         }
         const data = await response.json();
-        setTemperature(data.current.temp_c);
+        setTemperature(data.current.temp_c); // Set the temperature state
       } catch (err) {
         console.error('Error fetching weather data:', err);
-        setError('Unable to fetch weather data.');
+        setError('Unable to fetch weather data.'); // Handle error state
       }
     };
 
-    fetchWeather();
+    fetchWeather(); // Trigger weather data fetch on component mount
   }, []);
 
   return (
@@ -83,13 +54,13 @@ export default function DonutList() {
       {/* Weather Section */}
       <Container maxWidth="lg" sx={{ marginTop: '20px', marginBottom: '30px' }}>
         <Box sx={{ textAlign: 'center', padding: '20px', backgroundColor: '#f5f5f5', borderRadius: '8px' }}>
-          {error && <p style={{ color: 'red' }}>{error}</p>}
+          {error && <p style={{ color: 'red' }}>{error}</p>} {/* Display error if there is one */}
           {temperature !== null ? (
             <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#333' }}>
-              Current Temperature in Dublin: {temperature}°C
+              Current Temperature in Dublin: {temperature}°C {/* Show temperature */}
             </Typography>
           ) : (
-            !error && <p>Loading temperature...</p>
+            !error && <p>Loading temperature...</p> // Show loading message if temperature is still being fetched
           )}
         </Box>
       </Container>
@@ -121,7 +92,7 @@ export default function DonutList() {
                   overflow: 'hidden',
                   transition: 'transform 0.3s ease',
                   '&:hover': {
-                    transform: 'scale(1.05)',
+                    transform: 'scale(1.05)', // Hover effect to scale the card
                   },
                 }}
               >
@@ -190,7 +161,7 @@ export default function DonutList() {
                       textTransform: 'none',
                       borderRadius: '50px',
                       '&:hover': {
-                        backgroundColor: '#D52B1E',
+                        backgroundColor: '#D52B1E', // Change color on hover
                       },
                     }}
                   >

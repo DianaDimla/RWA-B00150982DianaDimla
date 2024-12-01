@@ -16,46 +16,49 @@ import '../styles/Login.css';
 import '../styles/Style.css';
 
 export default function Login() {
-  const [accountType, setAccountType] = useState('customer'); // Default to customer
-  const [error, setError] = useState(null); // To display errors
+  const [accountType, setAccountType] = useState('customer'); // Default account type
+  const [error, setError] = useState(null); // Error message state
 
+  // Handle account type change
   const handleAccountTypeChange = (event) => {
     setAccountType(event.target.value);
   };
 
+  // Handle form submission
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    // Get email and password values from form inputs
-    const email = event.target.email.value;  // Ensure email is captured correctly
-    const pass = event.target.pass.value;  // Ensure password is captured correctly
+    // Get email and password values from form
+    const email = event.target.email.value;
+    const pass = event.target.pass.value;
 
-    console.log('Form submission:', { email, pass });  // Debug log to check values
+    console.log('Form submission:', { email, pass });
 
-    // Make the API call to the login API
-    await runDBCallAsync(`http://localhost:3000/api/login?email=${email}&pass=${pass}&accType=${accountType}`);
+    // Make the API call to login
+    await runDBCallAsync(`/api/login?email=${email}&pass=${pass}&accType=${accountType}`);
   };
 
+  // Async function to handle the login API call
   async function runDBCallAsync(url) {
     try {
-      const res = await fetch(url);
-      const data = await res.json();
+      const res = await fetch(url); // Fetch data from API
+      const data = await res.json(); // Parse JSON response
 
       if (res.ok) {
         console.log("Login successful:", data);
 
-        // Handle redirect after successful login based on the role
+        // Redirect based on user role
         if (data.user.role === 'customer') {
-          window.location.href = '/ordernow'; // Redirect to order now page
+          window.location.href = '/ordernow'; // Redirect to customer page
         } else if (data.user.role === 'manager') {
           window.location.href = '/manager'; // Redirect to manager page
         }
       } else {
-        setError(data.message || 'Login failed. Please try again.');
+        setError(data.message || 'Login failed. Please try again.'); // Show error message
       }
     } catch (error) {
       console.error('Error during login call:', error);
-      setError('An error occurred during login.');
+      setError('An error occurred during login.'); // Handle fetch error
     }
   }
 
@@ -66,7 +69,7 @@ export default function Login() {
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '70vh' }}>
           <Box
             component="form"
-            onSubmit={handleSubmit}
+            onSubmit={handleSubmit} // Submit handler
             noValidate
             className="login-container"
             sx={{
@@ -81,7 +84,7 @@ export default function Login() {
           >
             <h2 className="text-center">Login</h2>
 
-            {/* Email Input */}
+            {/* Email input */}
             <TextField
               margin="normal"
               required
@@ -91,13 +94,11 @@ export default function Login() {
               name="email"
               autoComplete="email"
               autoFocus
-              InputLabelProps={{
-                style: { color: '#66CCFF' },
-              }}
+              InputLabelProps={{ style: { color: '#66CCFF' } }}
               className="login-textfield"
             />
 
-            {/* Password Input */}
+            {/* Password input */}
             <TextField
               margin="normal"
               required
@@ -107,16 +108,14 @@ export default function Login() {
               type="password"
               id="pass"
               autoComplete="current-password"
-              InputLabelProps={{
-                style: { color: '#66CCFF' },
-              }}
+              InputLabelProps={{ style: { color: '#66CCFF' } }}
               className="login-textfield"
             />
 
-            {/* Account Type Dropdown - Optional for future use */}
+            {/* Account type dropdown */}
             <Select
               value={accountType}
-              onChange={handleAccountTypeChange}
+              onChange={handleAccountTypeChange} // Account type change handler
               fullWidth
               displayEmpty
               className="login-select"
@@ -131,20 +130,15 @@ export default function Login() {
               <MenuItem value="manager">Manager</MenuItem>
             </Select>
 
-            {/* Submit Button */}
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              className="login-button"
-            >
+            {/* Submit button */}
+            <Button type="submit" fullWidth variant="contained" className="login-button">
               Login
             </Button>
 
-            {/* Error Message */}
+            {/* Display error message */}
             {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
 
-            {/* Links to other pages */}
+            {/* Link to signup page */}
             <div style={{ textAlign: 'center', marginTop: '10px' }}>
               <Link href="/signup" passHref>
                 <Button variant="outlined" sx={{ marginTop: '10px', color: '#66CCFF' }}>

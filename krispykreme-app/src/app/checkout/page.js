@@ -37,26 +37,6 @@ export default function Checkout() {
       items: cartItems,
       totalPrice,
     };
-
-    try {
-      const response = await fetch('http://localhost:3000/api/checkout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(orderDetails),
-      });
-
-      const result = await response.json();
-      if (response.status === 200) {
-        alert('Order placed successfully. A confirmation email has been sent!');
-      } else {
-        alert('There was an error placing your order.');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      alert('An error occurred while processing your order.');
-    }
   };
 
   return (

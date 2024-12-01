@@ -15,51 +15,48 @@ import '../styles/Login.css';
 import '../styles/Style.css';
 
 export default function SignUp() {
+  // State for account type and error message
   const [accType, setAccType] = useState('customer'); 
   const [error, setError] = useState(null); 
+
+  // Handle account type change
   const handleAccountTypeChange = (event) => setAccType(event.target.value);
 
+  // Handle form submission
   const handleSubmit = (event) => {
-    console.log("Handling submit");
     event.preventDefault();
 
+    // Get form data
     const data = new FormData(event.currentTarget);
     let firstName = data.get('firstName');
     let email = data.get('email');
     let pass = data.get('pass');
     let accType = data.get('accType');
 
-    // Input validation
+    // Validate inputs
     if (!firstName || !email || !pass) {
       setError("All fields are required.");
       return;
     }
 
-    setError(null);
+    setError(null); 
 
-    console.log("Sent firstName:", firstName);
-    console.log("Sent email:", email);
-    console.log("Sent pass:", pass);
-    console.log("Sent accType:", accType);
-
-    // Call the database interaction function
+    // Call API
     runDBCallAsync(
-      `http://localhost:3000/api/signup?firstName=${firstName}&email=${email}&pass=${pass}&accType=${accType}`
+      `/api/signup?firstName=${firstName}&email=${email}&pass=${pass}&accType=${accType}`
     );
   };
 
+  // Make API call
   async function runDBCallAsync(url) {
-
       const res = await fetch(url);
-      // Parse the response JSON
       const data = await res.json();
 
-      // Handle the response
+      // Handle response
       if (data.data === "inserted") {
-        console.log("Signup is valid!");
         window.location.href = '/login';
       } else {
-        console.log("Signup not valid");
+        console.log("Signup failed");
       }
   }
 
@@ -68,8 +65,8 @@ export default function SignUp() {
       {/* Header */}
       <Header />
 
-      {/* Main Content */}
-      <Container maxWidth="sm" sx={{ paddingTop: '20px', paddingBottom: '20px' }}>
+      {/* Main content */}
+      <Container maxWidth="sm">
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '70vh' }}>
           <Box
             component="form"
@@ -88,62 +85,28 @@ export default function SignUp() {
           >
             <h2 className="text-center">Sign Up</h2>
 
-            {/* Error Message */}
+            {/* Error message */}
             {error && <p style={{ color: 'red' }}>{error}</p>}
 
-            {/* First Name Input */}
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="firstName"
-              label="First Name"
-              name="firstName"
-              autoComplete="name"
-            />
+            {/* Input fields */}
+            <TextField margin="normal" required fullWidth id="firstName" label="First Name" name="firstName" />
+            <TextField margin="normal" required fullWidth id="email" label="Email" name="email" />
+            <TextField margin="normal" required fullWidth name="pass" label="Password" type="password" id="pass" />
 
-            {/* Email Input */}
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
-            />
-
-            {/* Password Input */}
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="pass"
-              label="Password"
-              type="password"
-              id="pass"
-              autoComplete="new-password"
-            />
-
-            {/* Account Type Dropdown */}
+            {/* Account type select */}
             <Select
               name="accType"
               value={accType}
               onChange={handleAccountTypeChange}
               fullWidth
               displayEmpty
-              sx={{
-                marginTop: '16px',
-                marginBottom: '16px',
-                color: '#66CCFF',
-                borderRadius: '5px',
-              }}
+              sx={{ marginTop: '16px', marginBottom: '16px' }}
             >
               <MenuItem value="customer">Customer</MenuItem>
               <MenuItem value="manager">Manager</MenuItem>
             </Select>
 
-            {/* Submit Button */}
+            {/* Submit button */}
             <Button type="submit" fullWidth variant="contained" className="login-button">
               Sign Up
             </Button>

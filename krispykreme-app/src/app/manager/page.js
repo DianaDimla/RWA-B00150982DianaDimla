@@ -12,23 +12,7 @@ export default function ManagerDashboard() {
   const [orderStats, setOrderStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // Fetch order statistics from the server
-  const fetchOrderStats = async () => {
-    try {
-      const response = await fetch('/api/manager/orders');
-      if (!response.ok) {
-        throw new Error('Failed to fetch order statistics');
-      }
-      const data = await response.json();
-      setOrderStats(data);
-      setLoading(false);
-    } catch (err) {
-      setError(err.message);
-      setLoading(false);
-    }
-  };
-
+  
   useEffect(() => {
     fetchOrderStats();
   }, []);
