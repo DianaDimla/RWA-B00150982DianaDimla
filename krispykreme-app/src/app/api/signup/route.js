@@ -1,61 +1,75 @@
-import bcrypt from 'bcryptjs';
-import { connectToDatabase } from '../../../lib/mongodb'; 
-import User from '../../models/User';
+export async function GET(req, res) {
+  console.log("In the register API page");
 
-export async function POST(req) {
+  // Extract query parameters from the request URL
+  const { searchParams } = new URL(req.url);
+  const firstName = searchParams.get('firstName');
+  const email = searchParams.get('email');
+  const pass = searchParams.get('pass');
+  const accType = searchParams.get('accType');
 
-  await connectToDatabase();
+  console.log("firstName:", firstName);
+  console.log("email:", email);
+  console.log("pass:", pass);
+  console.log("accType:", accType);
 
-  try {
-
-    const body = await req.json();
-    console.log('Incoming request:', body);
-
-
-    const { name, email, pass, accountType } = body;
-
-    // Validate input
-    if (!name || !email || !pass || !accountType) {
-      console.error('Validation failed: Missing fields');
-      return new Response(
-        JSON.stringify({ message: 'All fields are required' }),
-        { status: 400 }
-      );
-    }
-
-    // Check if the email is already registered
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      console.error('Validation failed: Email already registered');
-      return new Response(
-        JSON.stringify({ message: 'Email already registered' }),
-        { status: 400 }
-      );
-    }
-
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(pass, 10);
-
-    // Create and save the new user
-    const newUser = new User({
-      name,
-      email,
-      password: hashedPassword,
-      accountType,
-    });
-
-    await newUser.save();
-
-    console.log('New user registered successfully:', newUser);
-
+  // Validate input
+  if (!email || !pass || !firstName || !accType) {
+    console.log("Invalid input detected");
     return new Response(
-      JSON.stringify({ message: 'User registered successfully!' }),
+      JSON.stringify({ error: "All fields are required" }),
+      { status: 400 }
+    );
+  }
+
+  // MongoDB Connection
+  try {
+    const { MongoClient } = require('mongodb');
+    const url = process.env.DB_ADDRESS; // Ensure this is correctly set in your environment variables
+    const client = new MongoClient(url);
+    const dbName = 'app';
+
+    // Connect to MongoDB
+    await client.connect();
+    console.log("Connected successfully to MongoDB Atlas");
+
+    const db = client.db(dbName);
+    const collection = db.collection('users');
+
+    // Check if the user already exists
+    const existingUser = await collection.findOne({ email });
+    if (existingUser) {
+      console.log("User already exists with this email");
+      return new Response(
+        JSON.stringify({ error: "User already exists" }),
+        { status: 400 }
+      );
+    }
+
+    // Insert the user data
+    const user = {
+      firstName,
+      email,
+      pass,
+      accType,
+      createdAt: new Date(),
+    };
+    const insertResult = await collection.insertOne(user);
+
+    console.log("Insert result:", insertResult);
+
+    // Close the database connection
+    await client.close();
+
+    // Return success response
+    return new Response(
+      JSON.stringify({ data: "inserted" }),
       { status: 200 }
     );
-  } catch (err) {
-    console.error('Error during registration:', err);
+  } catch (error) {
+    console.error("Error during database interaction:", error);
     return new Response(
-      JSON.stringify({ message: `Server error: ${err.message}` }),
+      JSON.stringify({ error: "Database error" }),
       { status: 500 }
     );
   }

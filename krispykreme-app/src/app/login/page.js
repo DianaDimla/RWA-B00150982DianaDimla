@@ -32,39 +32,32 @@ export default function Login() {
 
     console.log('Form submission:', { email, pass });  // Debug log to check values
 
+    // Make the API call to the login API
+    await runDBCallAsync(`http://localhost:3000/api/login?email=${email}&pass=${pass}&accType=${accountType}`);
+  };
+
+  async function runDBCallAsync(url) {
     try {
-      // Make API request to login
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          pass, // Sending the password value as 'pass'
-        }),
-      });
+      const res = await fetch(url);
+      const data = await res.json();
 
-      const result = await response.json(); // Parse JSON response from backend
+      if (res.ok) {
+        console.log("Login successful:", data);
 
-      // Check if the login was successful
-      if (response.status === 200) {
-        console.log('Login successful!', result);
-
-        // Redirect based on user role
-        if (result.user.role === 'customer') {
+        // Handle redirect after successful login based on the role
+        if (data.user.role === 'customer') {
           window.location.href = '/ordernow'; // Redirect to order now page
-        } else if (result.user.role === 'manager') {
+        } else if (data.user.role === 'manager') {
           window.location.href = '/manager'; // Redirect to manager page
         }
       } else {
-        setError(result.message); // Show error message from backend
+        setError(data.message || 'Login failed. Please try again.');
       }
     } catch (error) {
-      console.error('Login error:', error);
-      setError('An error occurred during login.'); // Show generic error message
+      console.error('Error during login call:', error);
+      setError('An error occurred during login.');
     }
-  };
+  }
 
   return (
     <>
@@ -120,7 +113,7 @@ export default function Login() {
               className="login-textfield"
             />
 
-            {/* Account Type Dropdown */}
+            {/* Account Type Dropdown - Optional for future use */}
             <Select
               value={accountType}
               onChange={handleAccountTypeChange}

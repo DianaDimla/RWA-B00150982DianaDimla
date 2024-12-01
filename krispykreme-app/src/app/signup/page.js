@@ -1,6 +1,6 @@
 'use client';
-import * as React from 'react';
-import { useState } from 'react';
+
+import React, { useState } from 'react';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Select from '@mui/material/Select';
@@ -15,60 +15,60 @@ import '../styles/Login.css';
 import '../styles/Style.css';
 
 export default function SignUp() {
-  const [accType, setAccType] = useState('customer'); // Default account type
-  const [firstName, setFirstName] = useState('');
-  const [email, setEmail] = useState('');
-  const [pass, setPass] = useState('');
-  const [error, setError] = useState(null); // Error state for handling error messages
-  const url = 'mongodb+srv://root:myPassword123@cluster0.wqz8n.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+  const [accType, setAccType] = useState('customer'); 
+  const [error, setError] = useState(null); 
+  const handleAccountTypeChange = (event) => setAccType(event.target.value);
 
-  const handleAccountTypeChange = (event) => {
-    setAccType(event.target.value);
-  };
-
-  const handleSubmit = async (event) => {
+  const handleSubmit = (event) => {
+    console.log("Handling submit");
     event.preventDefault();
 
-    // Validate user input
+    const data = new FormData(event.currentTarget);
+    let firstName = data.get('firstName');
+    let email = data.get('email');
+    let pass = data.get('pass');
+    let accType = data.get('accType');
+
+    // Input validation
     if (!firstName || !email || !pass) {
-      setError('All fields are required.');
+      setError("All fields are required.");
       return;
     }
 
-    try {
-      // Use fetch API to call the backend API
-      const response = await fetch(`/api/signup`, {
-        method: 'POST', // Assuming POST method for registration
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: firstName, 
-          email,
-          pass,
-          accountType: accType, 
-        }),
-      });
+    setError(null);
 
-      if (response.ok) {
-        alert('Sign-up successful! Redirecting...');
-        window.location.href = '/login'; // Redirect user to login page after signup
-      } else {
-        const result = await response.json();
-        setError(result.message || 'Sign-up failed. Please try again.');
-      }
-    } catch (error) {
-      console.error('Error during sign-up:', error);
-      setError('An error occurred. Please try again.');
-    }
+    console.log("Sent firstName:", firstName);
+    console.log("Sent email:", email);
+    console.log("Sent pass:", pass);
+    console.log("Sent accType:", accType);
+
+    // Call the database interaction function
+    runDBCallAsync(
+      `http://localhost:3000/api/signup?firstName=${firstName}&email=${email}&pass=${pass}&accType=${accType}`
+    );
   };
+
+  async function runDBCallAsync(url) {
+
+      const res = await fetch(url);
+      // Parse the response JSON
+      const data = await res.json();
+
+      // Handle the response
+      if (data.data === "inserted") {
+        console.log("Signup is valid!");
+        window.location.href = '/login';
+      } else {
+        console.log("Signup not valid");
+      }
+  }
 
   return (
     <>
       {/* Header */}
       <Header />
 
-      {/* Main Content Container */}
+      {/* Main Content */}
       <Container maxWidth="sm" sx={{ paddingTop: '20px', paddingBottom: '20px' }}>
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '70vh' }}>
           <Box
@@ -88,8 +88,8 @@ export default function SignUp() {
           >
             <h2 className="text-center">Sign Up</h2>
 
-            {/* Error message */}
-            {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
+            {/* Error Message */}
+            {error && <p style={{ color: 'red' }}>{error}</p>}
 
             {/* First Name Input */}
             <TextField
@@ -100,13 +100,6 @@ export default function SignUp() {
               label="First Name"
               name="firstName"
               autoComplete="name"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              autoFocus
-              InputLabelProps={{
-                style: { color: '#66CCFF' },
-              }}
-              className="login-textfield"
             />
 
             {/* Email Input */}
@@ -118,12 +111,6 @@ export default function SignUp() {
               label="Email Address"
               name="email"
               autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              InputLabelProps={{
-                style: { color: '#66CCFF' },
-              }}
-              className="login-textfield"
             />
 
             {/* Password Input */}
@@ -136,16 +123,11 @@ export default function SignUp() {
               type="password"
               id="pass"
               autoComplete="new-password"
-              value={pass}
-              onChange={(e) => setPass(e.target.value)}
-              InputLabelProps={{
-                style: { color: '#66CCFF' },
-              }}
-              className="login-textfield"
             />
 
             {/* Account Type Dropdown */}
             <Select
+              name="accType"
               value={accType}
               onChange={handleAccountTypeChange}
               fullWidth

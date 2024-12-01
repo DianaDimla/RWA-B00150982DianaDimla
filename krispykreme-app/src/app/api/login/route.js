@@ -1,68 +1,67 @@
-import { connectToDatabase } from '../../../lib/mongodb';
-import User from '../../models/User'; // Your User model
-import bcrypt from 'bcryptjs'; // To compare hashed passwords
-import { getIronSession } from 'iron-session';
-import { cookies } from 'next/headers';
+export async function GET(req) {
+  console.log("In the login API page");
 
-const sessionOptions = {
-  password: 'VIi8pH38vD8ZLgEZclSa7an3olx4pkh6pvBj9fGZf', // Secret key to encrypt sessions
-  cookieName: 'appSession',
-  cookieOptions: {
-    secure: process.env.NODE_ENV === 'production', // Only use secure cookies in production
-  },
-};
+  // Extract query parameters from the request URL
+  const { searchParams } = new URL(req.url);
+  const email = searchParams.get('email');
+  const pass = searchParams.get('pass');
+  const accType = searchParams.get('accType'); // Optional: You might not need accType for login, but keeping it for consistency
 
-export async function POST(req) {
+  console.log("email:", email);
+  console.log("pass:", pass);
+  console.log("accType:", accType); // This might not be necessary for login, you can omit this if not needed
+
+  // Validate input
+  if (!email || !pass) {
+    console.log("Invalid input detected");
+    return new Response(
+      JSON.stringify({ error: "Email and password are required" }),
+      { status: 400 }
+    );
+  }
+
+  // MongoDB Connection
   try {
-    // Parse the incoming JSON request
-    const { email, pass } = await req.json();
+    const { MongoClient } = require('mongodb');
+    const url = process.env.DB_ADDRESS; // Ensure this is correctly set in your environment variables
+    const client = new MongoClient(url);
+    const dbName = 'app';
 
-    // Log the request body for debugging
-    console.log('Received request body:', { email, pass });
+    // Connect to MongoDB
+    await client.connect();
+    console.log("Connected successfully to MongoDB Atlas");
 
-    // Validate input
-    if (!email || !pass) {
-      return new Response(
-        JSON.stringify({ message: 'Email and password are required.' }),
-        { status: 400 }
-      );
-    }
-
-    // Connect to the database
-    await connectToDatabase();
+    const db = client.db(dbName);
+    const collection = db.collection('users');
 
     // Find user in the database
-    const user = await User.findOne({ email });
+    const user = await collection.findOne({ email });
     if (!user) {
+      console.log("No user found with this email");
       return new Response(
-        JSON.stringify({ message: 'Invalid email or password.' }),
+        JSON.stringify({ error: "Invalid email or password" }),
         { status: 400 }
       );
     }
 
-    // Compare the entered password with the stored hashed password
-    const isPasswordValid = await bcrypt.compare(pass, user.password);
-    if (!isPasswordValid) {
-      return new Response(
-        JSON.stringify({ message: 'Invalid email or password.' }),
-        { status: 400 }
-      );
-    }
+    // Optionally, set session data here (if needed for session management)
+    // For example, using iron-session for session management
+    // const session = await getIronSession(cookies(), sessionOptions);
+    // session.user = { id: user._id, email: user.email, role: user.accType };
+    // await session.save();
 
-    // Initialize the session after successful login
-    const session = await getIronSession(cookies(), sessionOptions);
-    session.user = { id: user._id, email: user.email, role: user.accountType }; // Store user info in session
-    await session.save();
+    // Close the database connection
+    await client.close();
 
-    // Return success response with user information
+    // Return success response
     return new Response(
-      JSON.stringify({ message: 'Login successful', user: session.user }),
+      JSON.stringify({ message: "Login successful", user: { id: user._id, email: user.email, role: user.accType } }),
       { status: 200 }
     );
   } catch (error) {
-    console.error('Error during login:', error);
+    console.error("Error during database interaction:", error);
     return new Response(
-      JSON.stringify({ message: 'Internal server error' }),
+      JSON.stringify({ error: "Database error" }),
       { status: 500 }
     );
   }
