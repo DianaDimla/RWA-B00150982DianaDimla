@@ -44,12 +44,6 @@ export async function GET(req) {
       );
     }
 
-    // Optionally, set session data here (if needed for session management)
-    // For example, using iron-session for session management
-    // const session = await getIronSession(cookies(), sessionOptions);
-    // session.user = { id: user._id, email: user.email, role: user.accType };
-    // await session.save();
-
     // Close the database connection
     await client.close();
 
