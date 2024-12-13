@@ -1,76 +1,68 @@
-export async function GET(req, res) {
-  console.log("In the register API page");
+import bcrypt from 'bcrypt';
+import { MongoClient } from 'mongodb';
+
+export async function GET(req) {
+  console.log("In the signup API page");
 
   // Extract query parameters from the request URL
   const { searchParams } = new URL(req.url);
-  const firstName = searchParams.get('firstName');
-  const email = searchParams.get('email');
-  const pass = searchParams.get('pass');
+  const firstName = searchParams.get('firstName')?.trim();
+  const email = searchParams.get('email')?.trim();
+  const pass = searchParams.get('pass')?.trim();
   const accType = searchParams.get('accType');
 
-  console.log("firstName:", firstName);
-  console.log("email:", email);
-  console.log("pass:", pass);
-  console.log("accType:", accType);
-
-  // Validate input
-  if (!email || !pass || !firstName || !accType) {
-    console.log("Invalid input detected");
-    return new Response(
-      JSON.stringify({ error: "All fields are required" }),
-      { status: 400 }
-    );
+  // Input validation
+  if (!firstName || !email || !pass || !accType) {
+    return new Response(JSON.stringify({ error: 'All fields are required.' }), { status: 400 });
   }
+
+  if (firstName.length > 20 || email.length > 50 || pass.length > 20) {
+    return new Response(JSON.stringify({ error: 'Input exceeds maximum allowed length.' }), { status: 400 });
+  }
+
+  // Check email format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return new Response(JSON.stringify({ error: 'Please enter a valid email address.' }), { status: 400 });
+  }
+
+  // Hash password
+  const hashedPass = await bcrypt.hash(pass, 10);
 
   // MongoDB Connection
   try {
-    const { MongoClient } = require('mongodb');
-    const url = process.env.DB_ADDRESS; // MongoDB connection URL
+    const url = process.env.DB_ADDRESS;
     const client = new MongoClient(url);
-    const dbName = 'app'; // Database name
-
-    // Connect to MongoDB
+    const dbName = 'app';
     await client.connect();
     console.log("Connected successfully to MongoDB Atlas");
 
     const db = client.db(dbName);
-    const collection = db.collection('users'); // 'users' collection
+    const collection = db.collection('users');
 
-    // Check if the user already exists
-    const existingUser = await collection.findOne({ email });
-    if (existingUser) {
-      console.log("User already exists with this email");
-      return new Response(
-        JSON.stringify({ error: "User already exists" }),
-        { status: 400 }
-      );
+    // Check if user already exists
+    const userExists = await collection.findOne({ email });
+    if (userExists) {
+      return new Response(JSON.stringify({ error: 'Email is already in use.' }), { status: 400 });
     }
 
-    // Insert new user data
-    const user = {
+    // Insert the user into the database
+    const result = await collection.insertOne({
       firstName,
       email,
-      pass,
-      accType,
-      createdAt: new Date(),
-    };
-    const insertResult = await collection.insertOne(user);
+      pass: hashedPass,
+      accType
+    });
 
-    console.log("Insert result:", insertResult);
-
-    // Close the database connection
     await client.close();
 
     // Return success response
     return new Response(
-      JSON.stringify({ data: "inserted" }),
+      JSON.stringify({ data: "inserted", message: "User successfully registered." }),
       { status: 200 }
     );
   } catch (error) {
     console.error("Error during database interaction:", error);
-    return new Response(
-      JSON.stringify({ error: "Database error" }),
-      { status: 500 }
-    );
+    return new Response(JSON.stringify({ error: 'Database error' }), { status: 500 });
   }
 }

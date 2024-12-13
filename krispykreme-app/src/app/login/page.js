@@ -18,6 +18,7 @@ import '../styles/Style.css';
 export default function Login() {
   const [accountType, setAccountType] = useState('customer'); // Default account type
   const [error, setError] = useState(null); // Error message state
+  const [loading, setLoading] = useState(false); // Loading state for API call
 
   // Handle account type change
   const handleAccountTypeChange = (event) => {
@@ -28,37 +29,63 @@ export default function Login() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    // Clear previous errors
+    setError(null);
+
     // Get email and password values from form
-    const email = event.target.email.value;
-    const pass = event.target.pass.value;
+    const email = event.target.email.value.trim();
+    const pass = event.target.pass.value.trim();
 
-    console.log('Form submission:', { email, pass });
+    // Input validation
+    if (!email || !pass) {
+      setError('Email and password cannot be blank.');
+      return;
+    }
 
-    // Make the API call to login
+    if (email.length > 30) {
+      setError('Email cannot exceed 50 characters.');
+      return;
+    }
+
+    if (pass.length > 20) {
+      setError('Password cannot exceed 30 characters.');
+      return;
+    }
+
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError('Please enter a valid email address.');
+      return;
+    }
+
+    // Trigger API call
+    setLoading(true);
     await runDBCallAsync(`/api/login?email=${email}&pass=${pass}&accType=${accountType}`);
+    setLoading(false);
   };
 
   // Async function to handle the login API call
   async function runDBCallAsync(url) {
     try {
-      const res = await fetch(url); // Fetch data from API
-      const data = await res.json(); // Parse JSON response
+      const res = await fetch(url);
+      const data = await res.json();
 
       if (res.ok) {
-        console.log("Login successful:", data);
+        console.log('Login successful:', data);
 
         // Redirect based on user role
         if (data.user.role === 'customer') {
-          window.location.href = '/ordernow'; // Redirect to customer page
+          window.location.href = '/ordernow';
         } else if (data.user.role === 'manager') {
-          window.location.href = '/manager'; // Redirect to manager page
+          window.location.href = '/manager';
         }
       } else {
-        setError(data.message || 'Login failed. Please try again.'); // Show error message
+        setError(data.error || 'Invalid login credentials.');
       }
     } catch (error) {
       console.error('Error during login call:', error);
-      setError('An error occurred during login.'); // Handle fetch error
+      setError('An unexpected error occurred. Please try again.');
     }
   }
 
@@ -69,7 +96,7 @@ export default function Login() {
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '70vh' }}>
           <Box
             component="form"
-            onSubmit={handleSubmit} // Submit handler
+            onSubmit={handleSubmit}
             noValidate
             className="login-container"
             sx={{
@@ -94,6 +121,7 @@ export default function Login() {
               name="email"
               autoComplete="email"
               autoFocus
+              inputProps={{ maxLength: 30 }} // Limit input length to 50
               InputLabelProps={{ style: { color: '#66CCFF' } }}
               className="login-textfield"
             />
@@ -108,6 +136,7 @@ export default function Login() {
               type="password"
               id="pass"
               autoComplete="current-password"
+              inputProps={{ maxLength: 20 }} // Limit input length to 30
               InputLabelProps={{ style: { color: '#66CCFF' } }}
               className="login-textfield"
             />
@@ -115,7 +144,7 @@ export default function Login() {
             {/* Account type dropdown */}
             <Select
               value={accountType}
-              onChange={handleAccountTypeChange} // Account type change handler
+              onChange={handleAccountTypeChange}
               fullWidth
               displayEmpty
               className="login-select"
@@ -131,14 +160,20 @@ export default function Login() {
             </Select>
 
             {/* Submit button */}
-            <Button type="submit" fullWidth variant="contained" className="login-button">
-              Login
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              className="login-button"
+              disabled={loading}
+            >
+              {loading ? 'Logging in...' : 'Login'}
             </Button>
 
             {/* Display error message */}
-            {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
+            {error && <p style={{ color: 'red', textAlign: 'center', marginTop: '10px' }}>{error}</p>}
 
-            {/* Link to signup page */}
+            {/* Link to signup */}
             <div style={{ textAlign: 'center', marginTop: '10px' }}>
               <Link href="/signup" passHref>
                 <Button variant="outlined" sx={{ marginTop: '10px', color: '#66CCFF' }}>

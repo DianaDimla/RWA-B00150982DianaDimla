@@ -9,64 +9,81 @@ import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { useRouter } from 'next/navigation'; // Using Next.js Router for navigation
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/Login.css';
 import '../styles/Style.css';
 
 export default function SignUp() {
-  // State for account type and error message
-  const [accType, setAccType] = useState('customer'); 
-  const [error, setError] = useState(null); 
+  const [accType, setAccType] = useState('customer'); // Default account type
+  const [error, setError] = useState(null); // Error message state
+  const [loading, setLoading] = useState(false); // Loading state for API call
+  const router = useRouter(); // Use Next.js router for redirecting
 
   // Handle account type change
   const handleAccountTypeChange = (event) => setAccType(event.target.value);
 
   // Handle form submission
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+
+    // Clear previous errors
+    setError(null);
 
     // Get form data
     const data = new FormData(event.currentTarget);
-    let firstName = data.get('firstName');
-    let email = data.get('email');
-    let pass = data.get('pass');
+    let firstName = data.get('firstName').trim();
+    let email = data.get('email').trim();
+    let pass = data.get('pass').trim();
     let accType = data.get('accType');
 
-    // Validate inputs
-    if (!firstName || !email || !pass) {
-      setError("All fields are required.");
+    // Input validation
+    if (!firstName || !email || !pass || !accType) {
+      setError('All fields are required.');
       return;
     }
 
-    setError(null); 
+    if (firstName.length > 20 || email.length > 50 || pass.length > 20) {
+      setError('Input exceeds maximum allowed length.');
+      return;
+    }
 
-    // Call API
-    runDBCallAsync(
-      `/api/signup?firstName=${firstName}&email=${email}&pass=${pass}&accType=${accType}`
-    );
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError('Please enter a valid email address.');
+      return;
+    }
+
+    setLoading(true);
+    await runDBCallAsync(`/api/signup?firstName=${firstName}&email=${email}&pass=${pass}&accType=${accType}`);
+    setLoading(false);
   };
 
-  // Make API call
+  // Async function to handle the signup API call
   async function runDBCallAsync(url) {
-      const res = await fetch(url);
-      const data = await res.json();
+    try {
+      const res = await fetch(url); // Fetch data from API
+      const data = await res.json(); // Parse JSON response
 
-      // Handle response
-      if (data.data === "inserted") {
-        window.location.href = '/login';
+      if (res.ok) {
+        console.log("Signup successful:", data);
+
+        // Redirect to login page
+        router.push('/login');
       } else {
-        console.log("Signup failed");
+        setError(data.error || 'Signup failed. Please try again.'); // Show error message
       }
+    } catch (error) {
+      console.error('Error during signup call:', error);
+      setError('An error occurred during signup.'); // Handle fetch error
+    }
   }
 
   return (
     <>
-      {/* Header */}
       <Header />
-
-      {/* Main content */}
-      <Container maxWidth="sm">
+      <Container maxWidth="sm" sx={{ paddingTop: '20px', paddingBottom: '20px' }}>
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '70vh' }}>
           <Box
             component="form"
@@ -107,14 +124,12 @@ export default function SignUp() {
             </Select>
 
             {/* Submit button */}
-            <Button type="submit" fullWidth variant="contained" className="login-button">
-              Sign Up
+            <Button type="submit" fullWidth variant="contained" className="login-button" disabled={loading}>
+              {loading ? 'Signing Up...' : 'Sign Up'}
             </Button>
           </Box>
         </Box>
       </Container>
-
-      {/* Footer */}
       <Footer />
     </>
   );
